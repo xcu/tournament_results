@@ -5,6 +5,7 @@
 
 import psycopg2
 from itertools import izip
+import bleach
 
 
 def connect():
@@ -63,7 +64,9 @@ def registerPlayer(name):
 def _create_player(name):
     db = connect()
     c= db.cursor()
-    c.execute("insert into players (full_name) values (%s);", (name,))
+    # only user input that needs to be checked to avoid SQL injection
+    sanitized_name = bleach.clean(name)
+    c.execute("insert into players (full_name) values (%s);", (sanitized_name,))
     db.commit()
     db.close()
 
